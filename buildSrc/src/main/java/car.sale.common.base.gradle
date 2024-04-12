@@ -1,0 +1,83 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+    id 'com.google.cloud.tools.jib'
+
+    id 'car.sale.jib.docker'
+}
+
+java {
+    sourceCompatibility = '17'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Tools
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation libs.spring.aop.starter
+    implementation libs.spring.actuator
+
+    implementation libs.aspectj.aop
+
+    // Spring Framework
+    implementation libs.spring.web
+    implementation libs.spring.validation
+
+    // SWAGGER
+    implementation 'ch.qos.logback:logback-classic'
+
+    compileOnly 'javax.servlet:javax.servlet-api:3.1.0'
+
+    // Web
+    implementation libs.swagger.annotation
+
+    implementation libs.springfox.swagger2
+    implementation libs.spring.openapi.webmvc
+
+//    ПОКА НЕ РАБОТАЕТ
+//    implementation libs.spring.cloud.config.client
+    annotationProcessor libs.spring.config.processor
+
+    // Lombok
+    implementation libs.lombok
+    compileOnly libs.lombok
+    annotationProcessor libs.lombok
+
+    // Testing Dependencies
+    testImplementation libs.spring.test
+
+    // Other Dependencies
+    implementation libs.jetbrains.annotations
+}
+
+jib {
+    from {
+        image = jibBaseDockerImage
+    }
+    to {
+        image = "${dockerHubUsername}/car-sale-${project.name}:${project.version}"
+        tags = [version, project.version] as List<String>
+        auth {
+            username = dockerHubUsername
+            password = dockerHubPassword
+        }
+    }
+    container {
+        format = jibImageFormat
+        getCreationTime().set(Instant.now().toString())
+    }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:2022.0.4"
+    }
+}
+
+test {
+    useJUnitPlatform()
+}

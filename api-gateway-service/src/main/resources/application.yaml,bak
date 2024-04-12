@@ -1,0 +1,96 @@
+server:
+  port: 7777
+  host:
+    url: http://192.168.0.80
+  ms:
+    api-gateway-url: ${server.host.url}:7777
+    user-service-url: ${server.host.url}:8080
+    project-service-url: ${server.host.url}:8082
+    mail-sender-service-url: ${server.host.url}:8090
+    auth-service-url: ${server.host.url}:9000
+
+spring:
+  main:
+    web-application-type: reactive
+  application:
+    name: api-gateway-service
+  profiles:
+    active: default
+  config:
+    import: "optional:configserver:${ server.host.url }:8888"
+  cloud:
+    config:
+      profile: dev
+    gateway:
+      routes:
+        - id: mail-sender-service-route
+          uri: ${server.host.url}:8090
+          predicates:
+            - Path=/*/*/*/mail/send/activation, /*/*/*/mail/send/activation/**
+        - id: user-service-route
+          uri: ${server.host.url}:8080
+          predicates:
+            - Path=/*/*/*/users, /*/*/*/users/{externalId}, /*/*/*/users/activation
+        - id: project-service-route
+          uri: ${server.host.url}:8082
+          predicates:
+            - Path=/*/*/*/projects, /*/*/*/projects/{externalId}, /*/*/*/projects/**
+      default-filters:
+        - name: AuthFilter
+        - name: CircuitBreaker
+          args:
+            name: DefaultCircuitBreaker
+            fallbackUri: forward:/fallback
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+  security:
+    oauth2:
+      client:
+        registration:
+          custom-oidc:
+            provider: custom-oidc
+            scope: openid
+            client-id: client
+            client-secret: secret
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_basic
+            resale-uri: "http://127.0.0.1:7777/login/oauth2/code/custom-oidc"
+        provider:
+          custom-oidc:
+            issuer-uri: "http://127.0.0.1:9000"
+            token-uri: "http://127.0.0.1:9000/oauth2/token"
+            authorization-uri: "http://127.0.0.1:9000/oauth2/authorize"
+            jwk-set-uri: "http://127.0.0.1:9000/oauth2/jwks"
+            user-info-uri: "http://127.0.0.1:9000/userinfo"
+
+management:
+  tracing:
+    enabled: false
+    sampling:
+      probability: 0.1
+  endpoint:
+    gateway:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: gateway, prometheus
+
+application:
+  security:
+    white-list:
+      # users-api
+      - url: /*
+        methods: POST
+      - url: /*/*/*/users
+        methods: POST
+      - url: /*/*/*/mail/send/activation
+        methods: POST, GET
+      - url: /*/*/*/users/*
+        methods: POST
+      - url: /*/*/*/users/activation
+        methods: POST, GET
+
+logging:
+  level:
+    org: INFO

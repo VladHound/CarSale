@@ -1,0 +1,23 @@
+jib {
+    from {
+        image = jibBaseDockerImage
+    }
+    to {
+        image = "${dockerHubUsername}/car-sale-${project.name}:${project.version}"
+        tags = [version, project.version] as List<String>
+        auth {
+            username = dockerHubUsername
+            password = dockerHubPassword
+        }
+    }
+    container {
+        format = jibImageFormat
+        getCreationTime().set(Instant.now().toString())
+    }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:2022.0.4"
+    }
+}

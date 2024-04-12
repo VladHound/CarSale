@@ -1,0 +1,20 @@
+plugins {
+    id 'car.sale.common.base'
+    id 'car.sale.common.data'
+    id 'car.sale.common.security'
+}
+
+dependencies {
+    implementation project(':commons')
+
+    implementation libs.micrometr.tracing
+    // Другие зависимости Micrometer, если необходимо
+
+    implementation libs.mapstruct
+
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
+    // Spring Framework
+    implementation libs.spring.webflux
+
+    implementation 'org.springframework.kafka:spring-kafka'
+}

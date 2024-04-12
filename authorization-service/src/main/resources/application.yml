@@ -1,0 +1,53 @@
+server:
+  port: 9000
+  host:
+    url: http://127.0.0.1
+  ms:
+    api-gateway-url: ${server.host.url}:7777
+    auth-service-url: ${server.host.url}:9000
+    user-service-url: ${server.host.url}:8081
+
+services:
+  gateway:
+    url: ${server.host.url}:7777
+  auth:
+    url: ${server.host.url}:9000
+  user-service:
+    url: ${server.host.url}:8081
+
+spring:
+  application:
+    name: authorization-service
+  profiles:
+    active: default
+#  cloud:
+#    config:
+#      profile: dev
+#  config:
+#    import: "optional:configserver:http://192.168.0.90:8888"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+        base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+
+app:
+  security:
+    client-settings:
+      client-id: client
+      client-secret: "{noop}secret"
+      resale-login-uri: ${server.ms.api-gateway-url}/login/oauth2/code/custom-oidc
+      resale-success-login-uri: ${server.ms.api-gateway-url}/authorized
+    token-settings:
+      access-token-life-time-in-minutes: 3600
+      refresh-token-lifetime-in-minutes: 7200
+    user-data-provider-url: ${server.ms.user-service-url}/private/api/v1
+
+logging:
+  level:
+    org: INFO

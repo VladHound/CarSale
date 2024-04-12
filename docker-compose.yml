@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  car-master:
+    container_name: car-master
+    restart: no
+    image: bitnami/postgresql:16
+    ports:
+      - "5001:5432"
+    environment:
+      POSTGRESQL_USERNAME: user
+      POSTGRESQL_PASSWORD: password
+      POSTGRESQL_DATABASE: car_db
+      POSTGRESQL_REPLICATION_MODE: master
+      POSTGRESQL_REPLICATION_USER: repluser
+      POSTGRESQL_REPLICATION_PASSWORD: replpassword
+
+  car-slave-001:
+    image: bitnami/postgresql:16
+    container_name: car-slave-001/master
+    restart: no
+    ports:
+      - "5101:5432"
+    depends_on:
+      - car-master
+    environment:
+      POSTGRESQL_REPLICATION_MODE: slave
+      POSTGRESQL_MASTER_HOST: car-master
+      POSTGRESQL_MASTER_PORT_NUMBER: 5432
+      POSTGRESQL_REPLICATION_USER: repluser
+      POSTGRESQL_REPLICATION_PASSWORD: replpassword

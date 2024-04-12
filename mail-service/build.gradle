@@ -1,0 +1,19 @@
+plugins {
+    id 'car.sale.common.base'
+    id 'car.sale.common.security'
+}
+
+group = 'car.sales'
+version = '1.0-SNAPSHOT'
+
+dependencies {
+    implementation project(':commons')
+    implementation libs.spring.boot.webflux
+
+    // mail
+    implementation libs.spring.mail
+
+    // Validation and Utilities
+    implementation libs.apache.commons.lang3
+    implementation libs.jaxb.api
+}

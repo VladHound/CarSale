@@ -1,0 +1,16 @@
+dependencies {
+    implementation libs.spring.oauth2.client
+
+    implementation libs.spring.security.oauth2
+    implementation libs.spring.security.oauth2autoconfigure
+    implementation libs.spring.oauth2.authorization.server
+
+    // Spring Framework
+    implementation libs.spring.security.security
+
+    // Security
+    implementation libs.spring.security.core
+    implementation libs.spring.security.oauth2
+    implementation libs.spring.oauth2.jose
+    implementation libs.spring.security.web
+}

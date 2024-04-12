@@ -1,0 +1,71 @@
+---
+server:
+  port: 8080
+  error:
+    include-message: always
+
+ms:
+  api-gateway-service:
+    url: http://127.0.0.1:7777
+  frontend:
+    url: http://127.0.0.1:3000
+
+spring:
+  application:
+    name: user-service
+  profiles:
+    active: default
+  cloud:
+    config:
+      profile: dev
+  config:
+    import: "optional:configserver:http://127.0.0.1:8889"
+  jpa:
+    show-sql: true
+    hibernate:
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      ddl-auto: update
+    properties:
+      hibernate:
+        generate_statistics: false
+        format_sql: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://127.0.0.1:9000/oauth2/jwks
+  datasource:
+    url: jdbc:postgresql://localhost:5432/user_db
+    username: user
+    password: password
+    driver-class-name: org.postgresql.Driver
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+        base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+app:
+  validation:
+    error-info:
+      BLANK_FIRST_NAME_VALIDATION_ERROR_CODE: Firstname can not be blank
+      BLANK_LAST_NAME_VALIDATION_ERROR_CODE: Lastname can not be blank
+      BLANK_EMAIL_VALIDATION_ERROR_CODE: Email can not be blank
+      BLANK_PASSWORD_VALIDATION_ERROR_CODE: Password can not be blank
+      BLANK_PHONE_VALIDATION_ERROR_CODE: Phone can not be blank
+      INCORRECT_FIRST_NAME_VALIDATION_ERROR_CODE: "Incorrect firstname format: %s"
+      INCORRECT_LAST_NAME_VALIDATION_ERROR_CODE: "Incorrect lastname format: %s"
+      INCORRECT_MIDDLE_NAME_VALIDATION_ERROR_CODE: "Incorrect middle name format: %s"
+      INCORRECT_PHONE_VALIDATION_ERROR_CODE: "Incorrect format for phone number: %s"
+      INCORRECT_EMAIL_VALIDATION_ERROR_CODE: "Incorrect email format: %s"
+      INCORRECT_PASSWORD_VALIDATION_ERROR_CODE: "Incorrect password format: %s. The correct password should contain:[at least 1 uppercase letter, at least 1 lowercase letter, at least 1 number, at least 1 special character]. Minimum 8 characters and maximum 30 characters."
+      INCORRECT_SEX_TYPE_ERROR_CODE: "Incorrect enum format: %s. Expected[MALE, FEMALE]"
+logging:
+  level:
+    web: INFO

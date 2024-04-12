@@ -1,0 +1,67 @@
+---
+server:
+  port: 8084
+  error:
+    include-message: always
+
+services:
+  gateway-service:
+    url: http://127.0.0.1:7777
+
+springfox:
+  documentation:
+    swagger-ui:
+      base-url: http://localhost:8084/swagger-ui.html
+swagger-app:
+  name: spring boot application
+  api:
+    title: Spring Boot APIs
+    version: 1.0.0
+    description: Spring Boot APIs description
+    base-package: com.abc.controller
+    contact-name: apisupportgroup
+    contact-email: apisupportgroup@abc.com
+    swagger:
+      enable: true
+
+spring:
+  application:
+    name: user-service
+  profiles:
+    active: default
+  jpa:
+    show-sql: true
+    hibernate:
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+#      ddl-auto: create-drop
+      ddl-auto: update
+    properties:
+      hibernate:
+        generate_statistics: false
+        format_sql: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://127.0.0.1:9000/oauth2/jwks
+  datasource:
+    url: jdbc:postgresql://localhost:5001/car_db
+    username: ${POSTGRES_NAME}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+        base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+logging:
+  level:
+    web: INFO

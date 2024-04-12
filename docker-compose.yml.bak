@@ -1,0 +1,75 @@
+version: '3'
+services:
+  postgres-master:
+    container_name: car-postgres-master
+    restart: no
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: car_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      PGDATA: /data
+      POSTGRES_PGAUDIT_LOG: READ,WRITE
+      POSTGRES_LOG_HOSTNAME: true
+      POSTGRES_REPLICATION_MODE: master
+      POSTGRES_REPLICATION_USER: repl_user
+      POSTGRES_REPLICATION_PASSWORD: repl_password
+#      POSTGRES_DATABASE: car_db
+
+#      POSTGRES_PASSWORD: password
+      ALLOW_EMPTY_PASSWORD: yes
+    ports:
+      - "5432:5432"
+    volumes:
+      - /data/car_master_data:/var/lib/postgresql/data
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf
+#      - ./db.sql:/docker-entrypoint-initdb.d/db.sql
+
+  postgres-slave:
+    container_name: car-postgres-slave
+    restart: no
+    image: postgres:16-alpine
+    depends_on:
+      - postgres-master
+    environment:
+#      POSTGRES_DB: car_db
+#      POSTGRES_USER: user
+#      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: password
+      POSTGRES_MASTER_HOST: postgres-master
+      POSTGRES_PGAUDIT_LOG: READ
+      POSTGRES_LOG_HOSTNAME: true
+      POSTGRES_REPLICATION_MODE: slave
+      POSTGRES_REPLICATION_USER: repl_user
+      POSTGRES_REPLICATION_PASSWORD: repl_password
+      POSTGRES_MASTER_PORT_NUMBER: 5432
+      ALLOW_EMPTY_PASSWORD: yes
+    ports:
+      - "5433:5432"
+    volumes:
+      - /data/car_slave_data:/var/lib/postgresql/data
+
+  zookeeper:
+    container_name: car-sale-zookeeper
+    image: zookeeper:3.9.1
+    ports:
+      - "2181:2181"
+
+  kafka:
+    container_name: car-sale-kafka
+    image: bitnami/kafka:3.4.1
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    expose:
+      - "9093"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9093,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+
+volumes:
+  master_data:
+  slave_data:

@@ -1,0 +1,14 @@
+plugins {
+    id 'car.sale.common.base'
+    id 'car.sale.common.data'
+    id 'car.sale.common.security'
+}
+
+dependencies {
+    implementation project(':commons')
+
+    // Spring Framework
+    implementation libs.spring.webflux
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+}

@@ -1,0 +1,56 @@
+plugins {
+    id 'java-library'
+    id "org.springframework.boot"
+}
+
+group = 'car.sale'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation libs.spring.data.commons
+
+    // jackson
+    implementation libs.jackson.databind
+    implementation libs.jackson.annotations
+
+    // security
+    implementation libs.spring.security.core
+    implementation libs.spring.security.oauth2
+    implementation libs.spring.oauth2.resource.server
+    implementation libs.spring.oauth2.jose
+
+    // Validation and Utilities
+    implementation libs.hibernate.core
+
+    implementation libs.hibernate.validator
+    implementation libs.jakarta.validation
+    implementation libs.apache.commons.lang3
+    implementation libs.jaxb.api
+
+    // Other Dependencies
+    implementation libs.jetbrains.annotations
+
+    // Lombok
+    implementation libs.lombok
+    compileOnly libs.lombok
+    annotationProcessor libs.lombok
+}
+
+bootBuildImage {
+    enabled = false
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+    archiveFileName = "commons-${version}.jar"
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from sourceSets.main.output
+}

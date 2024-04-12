@@ -1,0 +1,18 @@
+plugins {
+    id 'car.sale.common.base'
+    id 'car.sale.common.security'
+}
+
+dependencies {
+    implementation project(':commons')
+    implementation libs.spring.webflux
+    implementation libs.spring.oauth2.client
+
+    implementation libs.spring.cloud.api.gateway
+    implementation libs.spring.cloud.circuitbreaker
+    implementation libs.spring.cloud.reactive.circuitbreaker
+
+    // Validation and Utilities
+    implementation libs.apache.commons.lang3
+    implementation libs.jaxb.api
+}

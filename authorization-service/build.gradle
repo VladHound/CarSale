@@ -1,0 +1,13 @@
+plugins {
+    id 'car.sale.common.base'
+    id 'car.sale.common.security'
+}
+
+dependencies {
+    implementation project(':commons')
+    implementation libs.spring.boot.webflux
+
+    // Validation and Utilities
+    implementation libs.apache.commons.lang3
+    implementation libs.jaxb.api
+}

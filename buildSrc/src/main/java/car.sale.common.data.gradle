@@ -1,0 +1,17 @@
+dependencies {
+    // Spring Framework
+    implementation libs.spring.data.jpa
+
+    // Hibernate
+    implementation libs.hibernate.core
+    implementation libs.jakarta.jpa
+
+    // Database
+    implementation libs.postgresql
+
+    // Validation and Utilities
+    implementation libs.hibernate.validator
+//    implementation libs.jakarta.validation
+    implementation libs.apache.commons.lang3
+    implementation libs.jaxb.api
+}

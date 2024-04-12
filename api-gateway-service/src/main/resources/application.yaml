@@ -1,0 +1,109 @@
+---
+server:
+  port: 7777
+
+services:
+  frontend:
+    url: http://127.0.0.1:3000
+  api:
+    url: http://127.0.0.1:7777
+  user:
+    url: http://127.0.0.1:8081
+  seller:
+    url: http://127.0.0.1:8082
+  mail:
+    url: http://127.0.0.1:8083
+  car:
+    url: http://127.0.0.1:8084
+  fav:
+    url: http://127.0.0.1:8085
+  auth:
+    url: http://127.0.0.1:9000
+
+spring:
+  main:
+    web-application-type: reactive
+  application:
+    name: api-gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: mail-sender-service-route
+          uri: ${services.mail.url}
+          predicates:
+            - Path=/*/*/*/mail/send/activation
+        - id: user-service-route
+          uri: ${services.user.url}
+          predicates:
+            - Path=/*/*/*/users, /*/*/*/users/{externalId}, /*/*/*/users/activation,  /*/*/*/users/{userId}/roles/seller
+        - id: favorite-service-route
+          uri: ${services.fav.url}
+          predicates:
+            - Path=/*/*/*/*/*/favorites, /*/*/*/*/*/favorites/{externalId}
+        - id: seller-service
+          uri: ${services.seller.url}
+          predicates:
+            - Path=/*/*/*/sellers, /*/*/*/sellers/{externalId}
+        - id: car-service
+          uri: ${services.car.url}
+          predicates:
+            - Path=/*/*/*/car, /*/*/*/car/**, /*/*/*/car/brands, /*/*/*/car/types, /*/*/*/car/{carId}
+      default-filters:
+        - name: AuthFilter
+        - name: CircuitBreaker
+          args:
+            name: DefaultCircuitBreaker
+            fallbackUri: forward:/fallback
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+  security:
+    oauth2:
+      client:
+        registration:
+          custom-oidc:
+            provider: custom-oidc
+            scope: openid
+            client-id: client
+            client-secret: secret
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_basic
+            resale-uri: ${services.api.url}/login/oauth2/code/custom-oidc
+        provider:
+          custom-oidc:
+            issuer-uri: ${services.auth.url}
+            token-uri: ${services.auth.url}/oauth2/token
+            authorization-uri: ${services.auth.url}/oauth2/authorize
+            jwk-set-uri: ${services.auth.url}/oauth2/jwks
+            user-info-uri: ${services.auth.url}/userinfo
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+        base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+application:
+  security:
+    white-list:
+      - url: /*/*/*/users/**
+        methods: POST
+      - url: /*/*/*/users/oauth/login
+        methods: POST, GET
+      - url: /*/*/*/sellers/oauth/login
+        methods: POST, GET
+      - url: /*/*/*/users/activation
+        methods: POST, GET
+      - url: /*/*/*/mail/send/activation
+        methods: POST
+      # sellers-api
+      - url: /*/*/*/sellers
+        methods: POST
+      - url: /*/*/*/car-previews
+        methods: POST, GET
+      - url: /*/*/*/car/brands
+        methods: GET
+logging:
+  level:
+    org: INFO

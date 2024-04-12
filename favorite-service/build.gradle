@@ -1,0 +1,12 @@
+plugins {
+    id 'car.sale.common.base'
+    id 'car.sale.common.data'
+}
+
+group = 'car.sale'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+test {
+    useJUnitPlatform()
+}
